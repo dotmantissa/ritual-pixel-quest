@@ -144,3 +144,19 @@
     color: var(--color-foreground);
   }
 }
+
+@layer base {
+  body {
+    background: var(--gradient-mystic);
+    min-height: 100vh;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-glow { text-shadow: 0 0 18px var(--glow); }
+  .ring-glow { box-shadow: 0 0 32px var(--glow), inset 0 0 12px oklch(0.78 0.24 145 / 0.25); }
+  .tile-glow { box-shadow: 0 0 0 1px var(--color-border), 0 8px 30px oklch(0 0 0 / 0.5); }
+  @keyframes pulse-glow { 0%,100%{ box-shadow:0 0 20px var(--glow);} 50%{ box-shadow:0 0 45px var(--glow);} }
+  .anim-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+}
