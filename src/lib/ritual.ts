@@ -1,4 +1,4 @@
-import { BrowserProvider, toUtf8Bytes, hexlify } from "ethers";
+import { BrowserProvider, Contract } from "ethers";
 
 export const RITUAL_CHAIN = {
   chainIdHex: "0x7BB", // 1979
@@ -8,6 +8,16 @@ export const RITUAL_CHAIN = {
   rpcUrls: ["https://rpc.ritualfoundation.org"],
   blockExplorerUrls: ["https://explorer.ritualfoundation.org"],
 };
+
+export const PUZZLE_SCORES_ADDRESS =
+  "0xd577697B8c8924fc2249eA6197575Db635655006";
+
+export const PUZZLE_SCORES_ABI = [
+  "function submitScore(string character, uint32 moves, uint32 timeMs) external",
+  "function scoreCount() view returns (uint256)",
+  "function getScores(uint256 offset, uint256 limit) view returns (tuple(address player, string character, uint32 moves, uint32 timeMs, uint64 timestamp)[])",
+  "event ScoreSubmitted(address indexed player, string character, uint32 moves, uint32 timeMs, uint64 timestamp, uint256 index)",
+] as const;
 
 declare global {
   interface Window {
@@ -59,13 +69,12 @@ export async function storeResultOnChain(payload: {
   timeMs: number;
   size: number;
 }) {
-  const { signer, address } = await connectWallet();
-  const message = JSON.stringify({ app: "ritual-puzzle", v: 1, ...payload, ts: Date.now() });
-  const data = hexlify(toUtf8Bytes(message));
-  const tx = await signer.sendTransaction({
-    to: address,
-    value: 0n,
-    data,
-  });
-  return { hash: tx.hash, message };
+  const { signer } = await connectWallet();
+  const contract = new Contract(PUZZLE_SCORES_ADDRESS, PUZZLE_SCORES_ABI, signer);
+  // Clamp to uint32
+  const moves = Math.min(payload.moves, 0xffffffff);
+  const timeMs = Math.min(Math.floor(payload.timeMs), 0xffffffff);
+  const tx = await contract.submitScore(payload.character, moves, timeMs);
+  const receipt = await tx.wait();
+  return { hash: tx.hash, receipt };
 }
