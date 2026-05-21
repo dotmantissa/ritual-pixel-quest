@@ -103,6 +103,26 @@ export function PuzzleGame() {
     }
   }
 
+  async function handleDisconnect() {
+    try {
+      setBusy(true);
+      if (window.ethereum?.request) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_revokePermissions",
+            params: [{ eth_accounts: {} }],
+          });
+        } catch {
+          // Ignore providers that do not support permission revocation.
+        }
+      }
+      setAddress(null);
+      setStatus("Disconnected.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleSubmit() {
     if (submittedRef.current) return;
     try {
@@ -163,9 +183,18 @@ export function PuzzleGame() {
         </div>
         <div className="flex items-center gap-2">
           {address ? (
-            <span className="rounded-lg border border-border bg-background/40 px-3 py-1.5 font-mono text-xs text-primary">
-              {address.slice(0, 6)}…{address.slice(-4)}
-            </span>
+            <>
+              <span className="rounded-lg border border-border bg-background/40 px-3 py-1.5 font-mono text-xs text-primary">
+                {address.slice(0, 6)}…{address.slice(-4)}
+              </span>
+              <button
+                onClick={handleDisconnect}
+                disabled={busy}
+                className="rounded-lg border border-border bg-background/40 px-4 py-1.5 text-sm text-foreground hover:bg-background/80 disabled:opacity-50"
+              >
+                Disconnect Wallet
+              </button>
+            </>
           ) : (
             <button
               onClick={handleConnect}
