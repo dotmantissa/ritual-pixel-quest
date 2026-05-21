@@ -16,6 +16,13 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   ssr: {
-    noExternal: ["h3-v2", "rou3", "srvx"],
+    noExternal: [
+      "h3-v2",
+      "rou3",
+      "srvx",
+      "@tanstack/router-core",
+      "@tanstack/react-router",
+      "@tanstack/history",
+    ],
   },
 });
