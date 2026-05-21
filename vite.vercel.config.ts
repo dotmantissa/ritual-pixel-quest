@@ -15,4 +15,7 @@ export default defineConfig({
     tailwindcss(),
     tsconfigPaths(),
   ],
+  ssr: {
+    noExternal: ["h3-v2"],
+  },
 });
