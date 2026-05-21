@@ -16,6 +16,6 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   ssr: {
-    noExternal: ["h3-v2"],
+    noExternal: ["h3-v2", "rou3", "srvx"],
   },
 });
